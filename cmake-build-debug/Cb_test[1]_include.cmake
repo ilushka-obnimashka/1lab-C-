@@ -1,0 +1,5 @@
+if(EXISTS "C:/Users/Ilya/Desktop/OOP/1b/cmake-build-debug/Cb_test[1]_tests.cmake")
+  include("C:/Users/Ilya/Desktop/OOP/1b/cmake-build-debug/Cb_test[1]_tests.cmake")
+else()
+  add_test(Cb_test_NOT_BUILT Cb_test_NOT_BUILT)
+endif()

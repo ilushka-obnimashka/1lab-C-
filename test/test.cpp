@@ -20,7 +20,6 @@ TEST(CircularBufferTest, DefaultConstructor) {
     EXPECT_EQ(buffer.reserve(), initialCapacity);
 
     // Проверка, что head и tail установлены правильно
-    EXPECT_EQ(buffer.getHead(), 0);
     EXPECT_EQ(buffer.getTail(), 0);
 
     // Проверка, что буфер выделен правильно
@@ -39,7 +38,6 @@ TEST(CircularBufferTest, CopyConstructor){
 
     EXPECT_EQ(buffer1.reserve(), buffer2.reserve() );
 
-    EXPECT_EQ(buffer1.getHead(), buffer2.getHead());
     EXPECT_EQ(buffer1.getTail(), buffer2.getTail());
 
     // Проверка, что буфер выделен правильно
@@ -59,8 +57,7 @@ TEST(CircularBufferTest, ElemConstructor){
     EXPECT_EQ(buffer.empty(), false);
     EXPECT_EQ(buffer.reserve(), 0);
 
-    // Проверка, что head и tail установлены правильно
-    EXPECT_EQ(buffer.getHead(), initialCapacity);
+    // Проверка, tail установлен правильно
     EXPECT_EQ(buffer.getTail(), 0);
 
     // Проверка, что буфер выделен правильно
@@ -86,7 +83,6 @@ TEST(CircularBufferTest, AssignmentOperator){
 
     EXPECT_EQ(buffer1.reserve(), buffer2.reserve() );
 
-    EXPECT_EQ(buffer1.getHead(), buffer2.getHead());
     EXPECT_EQ(buffer1.getTail(), buffer2.getTail());
 
     // Проверка, что буфер выделен правильно
@@ -117,7 +113,7 @@ TEST(CircularBufferTest, swap){
 
     EXPECT_EQ(buffer1.getCapacity(),5);
     EXPECT_EQ(buffer1.getSize(),5);
-    EXPECT_EQ(buffer1.getHead(),5);
+
     EXPECT_EQ(buffer1.getTail(),0);
 
     for (size_t i = 0; i<buffer1.getSize(); i++){
@@ -127,7 +123,7 @@ TEST(CircularBufferTest, swap){
 
     EXPECT_EQ(buffer2.getCapacity(),10);
     EXPECT_EQ(buffer2.getSize(),10);
-    EXPECT_EQ(buffer2.getHead(),10);
+
     EXPECT_EQ(buffer2.getTail(),0);
 
     for (size_t i = 0; i<buffer2.getSize(); i++){
@@ -138,7 +134,6 @@ TEST(CircularBufferTest, swap){
 
     EXPECT_EQ(buffer1.getCapacity(),10);
     EXPECT_EQ(buffer1.getSize(),10);
-    EXPECT_EQ(buffer1.getHead(),10);
     EXPECT_EQ(buffer1.getTail(),0);
 
     for (size_t i = 0; i<buffer1.getSize(); i++){
@@ -154,7 +149,7 @@ TEST(CircularBufferTest, clear){
 
     EXPECT_EQ(buffer.getCapacity(),5);
     EXPECT_EQ(buffer.getSize(),5);
-    EXPECT_EQ(buffer.getHead(),5);
+
     EXPECT_EQ(buffer.getTail(),0);
     EXPECT_NE(buffer.getBuffer(), nullptr);
 
@@ -162,7 +157,6 @@ TEST(CircularBufferTest, clear){
 
     EXPECT_EQ(buffer.getCapacity(),5);
     EXPECT_EQ(buffer.getSize(),0);
-    EXPECT_EQ(buffer.getHead(),0);
     EXPECT_EQ(buffer.getTail(),0);
     EXPECT_EQ(buffer.getBuffer(), nullptr);
 
@@ -227,21 +221,7 @@ TEST(CircularBufferTest, Linearize) {
 
     // Проверяем, что tail и head установлены корректно
     EXPECT_EQ(buffer.getTail(), 0);
-    EXPECT_EQ(buffer.getHead(), buffer.getSize());
 }
-
-TEST(CircularBufferTest, push_front_test){
-    size_t initialCapacity = 10;
-    CircularBuffer<int> buffer(initialCapacity);
-
-    // Добавляем элементы в буфер
-    for (size_t i = 0; i < initialCapacity; i++) {
-        buffer.push_front(i);
-    }
-    EXPECT_EQ(buffer.getSize(), 10);
-
-}
-
 
 TEST (CircularBufferTest, pop_back_pop_front){
     size_t initialCapacity = 10;
@@ -271,6 +251,8 @@ TEST(CircularBufferTest, EQ_NE){
     EXPECT_EQ(buffer1 != buffer2, true);
 
 }
+
+
 
 
 

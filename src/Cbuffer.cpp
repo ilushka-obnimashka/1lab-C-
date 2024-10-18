@@ -6,28 +6,21 @@ private:
     T* buffer; // указатель на массив элементов произвольного типа данных, хранит сами данные буффера.
     size_t capacity; // целое число без знака, хранит максимальное количество элементов, которое может быть записано в буфер.
     size_t size; // целое число без знака, хранит текущее количество элементов в буфере..
-    size_t head; // целое число без знака, хранит позицию куда будет записан следюущий элемент. в линерализованном буфере head = size
     size_t tail; // целое число без знака, хранит позицию откуда будет считан следующий элемент.
 public:
-
-
     // конструктор по умолчанию.
     CircularBuffer(size_t initialCapacity)
-    : capacity(initialCapacity), size(0), head(0), tail(0){
+    : capacity(initialCapacity), size(0), tail(0){
         this->buffer = new T[this->capacity];
     }
 
     ~CircularBuffer() {
-        this->capacity = 0;
-        this->size = 0;
-        this->head = 0;
-        this->tail = 0;
         delete[] this->buffer;
     }
 
     // конструктор копирования.
     CircularBuffer(const CircularBuffer &cb)
-    : capacity(cb.capacity), size(cb.size), head(cb.head), tail(cb.tail) {
+    : capacity(cb.capacity), size(cb.size), tail(cb.tail) {
         this->buffer  = new T[this->capacity];
 
         for (size_t i = 0; i < size; i++) {
@@ -43,8 +36,7 @@ public:
         for (size_t i = 0; i < capacity; i++) {
             this->buffer[i] = elem;
         }
-        this->size = capacity; // количество записанных элементов равно емкости
-        this->head = capacity; // следующий элемент должен будет записан по индексу capacity % capacity
+        this->size = capacity; // количество записанных элементов равно емкость
         //tail = 0 задано в конструкторе создания
     }
 
@@ -57,7 +49,6 @@ public:
 
         this->capacity = cb.capacity;
         this->size = cb.size;
-        this->head = cb.head;
         this->tail = cb.tail;
 
         this->buffer = new T[this->capacity];
@@ -78,7 +69,6 @@ public:
     void swap(CircularBuffer & cb) {
         std::swap(this->capacity, cb.capacity);
         std::swap(this->size, cb.size);
-        std::swap(this->head, cb.head);
         std::swap(this->tail, cb.tail);
         std::swap(this->buffer, cb.buffer);
     }
@@ -99,8 +89,6 @@ public:
             --size;
             --last;
         }
-        head = (tail + size) % capacity;
-
     }
     //Доступ по индексу. Не проверяют правильность индекса.
     // Индексация ведется от tail (idTail = 0, idxHead = size | не связаны с индексацией буффера), т.к кольцевой буффер FIFO.
@@ -140,7 +128,7 @@ public:
         if (empty())
             throw std::logic_error("Try to reach element from empty buffer");
         // head показывает индекс в массиве куда будет записан новый элемент
-        return this->buffer[(this->head - 1) % this->capacity];
+        return this->buffer[(this->tail + this->size-1) % this->capacity];
     }
 
     const T & front() const{
@@ -152,7 +140,7 @@ public:
     const T back() const{
         if (empty())
             throw std::logic_error("Try to reach element from empty buffer");
-        return this->buffer[(this->head - 1) % this->capacity];
+        return this->buffer[(this->tail + this->size-1) % this->capacity];
     }
 
 
@@ -172,11 +160,6 @@ public:
     int getTail() const
     {
         return static_cast<int>(this->tail);
-    }
-
-    int getHead() const
-    {
-        return static_cast<int>(this->head);
     }
 
     T* getBuffer() const
@@ -217,8 +200,6 @@ public:
             this->buffer[i] = temp[i];
         }
         this->tail = 0;
-        this->head = size;
-
         delete [] temp;
 
         return buffer;
@@ -247,7 +228,7 @@ public:
 
     }
 
-    void setCapacity(int new_capacity){ //Изменяет размер буфера., при этом старый tail встает на buffer[0] , порядок tail -... - head сохраняется
+    void setCapacity(int new_capacity){ //Изменяет размер буфера., при этом старый tail встает на buffer[0] , порядок tail -...  сохраняется
         if (this->capacity == new_capacity) return;
 
         T *newBuffer = new T [new_capacity];
@@ -260,7 +241,6 @@ public:
         buffer = newBuffer;
 
         tail = 0;
-        head = this->size;
     }
 
     //В случае расширения, новые элементы заполняются элементом item.
@@ -282,18 +262,13 @@ public:
     Если текущий размер буфера равен его ёмкости, то переписывается
     первый элемент буфера (т.е., буфер закольцован). */
     void push_back(const T & item = T()) {
-        if (this->buffer = NULL){
-            this->buffer = new T[this->capacity];
-        }
         if (this->size < this->capacity) {
-            this->buffer[head++] = item;
+            this->buffer[(this->tail + this->size) % capacity] = item;
             this->size++;
-            this->head %= (capacity + 1);
         }
         else {
-            this->buffer[head % capacity] = item;
-            if (head%capacity == tail ) this->tail = (this->tail+1) % this->capacity;
-            head = (head + 1) % capacity;
+            this->buffer[tail] = item;
+            tail++;
         }
     }
 
@@ -315,7 +290,6 @@ public:
             }
             // Вставляем новый элемент в начало
             this->buffer[this->tail] = item;
-            this->head = (this->head + 1) % this->capacity;
         }
     }
 
@@ -325,12 +299,7 @@ public:
     void pop_back(){
         if (empty())
             throw std::logic_error("Try delete from empty buffer");
-        if (this->head == 0) {
-            this->head = this->size+1;
-        }
-
-
-        this->head--;
+        this->buffer[(this->tail + this->size - 1) % capacity] = NULL;
         this->size--;
     }
 
@@ -346,7 +315,6 @@ public:
     //Очищает буфер.
     void clear() {
         this->size = 0;
-        this->head = 0;
         this->tail = 0;
         delete [] this->buffer;
         this->buffer = NULL;
@@ -355,7 +323,7 @@ public:
 
 
     friend std::ostream& operator << (std::ostream& out, const CircularBuffer& cb) {
-        out << "Capacity: " << cb.capacity << " size: " << cb.size << " head: " << cb.head << " tail: " << cb.tail <<
+        out << "Capacity: " << cb.capacity << " size: " << cb.size << " tail: " << cb.tail <<
                 " reserve: " << cb.reserve() << std::endl;
         for (size_t i = 0; i < cb.size; i++) {
             out << cb.buffer[(cb.tail + i) % cb.capacity] << " ";
@@ -381,4 +349,3 @@ template<class T>
 bool operator!=(const CircularBuffer<T> &a, const CircularBuffer<T> &b) {
     return !(a == b);
 }
-
